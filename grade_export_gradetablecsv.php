@@ -104,7 +104,6 @@ class grade_export_gradetablecsv extends grade_export {
                 $exportdata[] = $issuspended;
             }
 
-            $index = 0;
             $keys = array_keys($this->displaytype);
             foreach ($userdata->grades as $grade) {
                 if ($export_tracking) {
@@ -112,7 +111,7 @@ class grade_export_gradetablecsv extends grade_export {
                 }
 
                 $exportdata[] = $grade->grade_item->itemname;                                   // assignment name
-                $exportdata[] = $this->format_grade($grade, $this->displaytype[$keys[$index]]); // assignment grade
+                $exportdata[] = $this->format_grade($grade, $this->displaytype[$keys[0]]); // assignment grade
 
                 $userid = $user->id;
                 $courseid = $this->course->id;
@@ -153,7 +152,6 @@ class grade_export_gradetablecsv extends grade_export {
                     $base[] = time();
                     $csvexport->add_data($base);
                 }
-                $index++;
             }
         }
         $gui->close();
