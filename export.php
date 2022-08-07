@@ -66,4 +66,6 @@ if (!empty($CFG->gradepublishing) && !empty($key)) {
     groups_print_course_menu($course, 'index.php?id=' . $id);
     echo $export->get_grade_publishing_url();
     echo $OUTPUT->footer();
+} else {
+    $export->print_grades();
 }
