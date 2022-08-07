@@ -150,8 +150,8 @@ class grade_export_gradetablecsv extends grade_export {
                     $base[] = '-';  // empty feedback
 
                     // Time exported.
-                    $detail[] = time();
-                    $csvexport->add_data($detail);
+                    $base[] = time();
+                    $csvexport->add_data($base);
                 }
                 $index++;
             }
