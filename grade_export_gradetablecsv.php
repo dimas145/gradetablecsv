@@ -129,22 +129,26 @@ class grade_export_gradetablecsv extends grade_export {
                 $curl->setHeader(array('Accept: application/json', 'Expect:'));
                 $response = json_decode($curl->get($url));
 
+                $base = $exportdata;    // copy redundant info
                 if ($response->success) {
                     foreach ($response->result as $autograder) {
                         foreach ($autograder->feedbacks as $feedback) {
-                            $base = $exportdata;    // copy redundant info
-                            $base[] = $autograder->graderName;
-                            $base[] = $feedback->feedback;
+                            $detail = $base;
+                            $detail[] = $autograder->graderName;
+                            $detail[] = $feedback->feedback;
 
                             // Time exported.
-                            $base[] = time();
-                            $csvexport->add_data($base);
+                            $detail[] = time();
+                            $csvexport->add_data($detail);
                         }
                     }
                 } else {
                     $base[] = '-';  // empty grader
                     $base[] = '-';  // empty feedback
-                    $csvexport->add_data($base);
+
+                    // Time exported.
+                    $detail[] = time();
+                    $csvexport->add_data($detail);
                 }
                 $index++;
             }
