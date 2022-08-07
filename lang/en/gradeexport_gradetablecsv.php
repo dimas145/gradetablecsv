@@ -23,8 +23,12 @@
  */
 
 $string['eventgradeexported'] = 'Autograding feedback table grade exported';
-$string['pluginname'] = 'Autograding feedback table file';
+$string['pluginname'] = 'Autograding feedback table CSV file';
 $string['privacy:metadata'] = 'The autograding feedback table file grade export plugin does not store any personal data.';
 $string['timeexported'] = 'Last downloaded from this course';
 $string['gradetablecsv:publish'] = 'Publish autograding feedback grade table export';
 $string['gradetablecsv:view'] = 'Use autograding feedback grade table export';
+$string['assignment'] = 'Assignment name';
+$string['total'] = 'Total assignment grade';
+$string['autograder'] = 'Autograder name';
+$string['feedback'] = 'Feedbacks';

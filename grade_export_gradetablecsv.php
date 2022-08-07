@@ -51,6 +51,8 @@ class grade_export_gradetablecsv extends grade_export {
 
     public function print_grades() {
         global $CFG;
+        $config = get_config('local_integrate_autograding_system');
+        $curl = new curl();
 
         $export_tracking = $this->track_exports();
 
@@ -72,15 +74,12 @@ class grade_export_gradetablecsv extends grade_export {
             $exporttitle[] = get_string("suspended");
         }
 
-        // Add grades and feedback columns.
-        foreach ($this->columns as $grade_item) {
-            foreach ($this->displaytype as $gradedisplayname => $gradedisplayconst) {
-                $exporttitle[] = $this->format_column_name($grade_item, false, $gradedisplayname);
-            }
-            if ($this->export_feedback) {
-                $exporttitle[] = $this->format_column_name($grade_item, true);
-            }
-        }
+        // Autograder feedback columns
+        $exporttitle[] = get_string('assignment', 'gradeexport_gradetablecsv');
+        $exporttitle[] = get_string('total', 'gradeexport_gradetablecsv');
+        $exporttitle[] = get_string('autograder', 'gradeexport_gradetablecsv');
+        $exporttitle[] = get_string('feedback', 'gradeexport_gradetablecsv');
+
         // Last downloaded column header.
         $exporttitle[] = get_string('timeexported', 'gradeexport_gradetablecsv');
         $csvexport->add_data($exporttitle);
@@ -92,7 +91,6 @@ class grade_export_gradetablecsv extends grade_export {
         $gui->allow_user_custom_fields($this->usercustomfields);
         $gui->init();
         while ($userdata = $gui->next_user()) {
-
             $exportdata = array();
             $user = $userdata->user;
 
@@ -104,22 +102,44 @@ class grade_export_gradetablecsv extends grade_export {
                 $issuspended = ($user->suspendedenrolment) ? get_string('yes') : '';
                 $exportdata[] = $issuspended;
             }
-            foreach ($userdata->grades as $itemid => $grade) {
+
+            foreach ($userdata->grades as $grade) {
                 if ($export_tracking) {
                     $status = $geub->track($grade);
                 }
 
-                foreach ($this->displaytype as $gradedisplayconst) {
-                    $exportdata[] = $this->format_grade($grade, $gradedisplayconst);
-                }
+                $exportdata[] = $grade->grade_item->itemname;   // assignment name
+                $exportdata[] = $grade->finalgrade;             // assignment grade
 
-                if ($this->export_feedback) {
-                    $exportdata[] = $this->format_feedback($userdata->feedbacks[$itemid], $grade);
+                $userid = $user->id;
+                $courseid = $this->course->id;
+                $assignmentid = $grade->grade_item->iteminstance;
+                $url = get_string(
+                    'urltemplate',
+                    'local_integrate_autograding_system',
+                    [
+                        'url' => $config->bridge_service_url,
+                        'endpoint' => "/submission/detail?userId=$userid&courseId=$courseid&assignmentId=$assignmentid"
+                    ]
+                );
+
+                $curl->setHeader(array('Content-type: application/json'));
+                $curl->setHeader(array('Accept: application/json', 'Expect:'));
+                $response = json_decode($curl->get($url));
+
+                $base = $exportdata;    // copy redundant info
+                foreach ($response->submission as $autograder) {
+                    foreach ($autograder->feedbacks as $feedback) {
+                        $detail = $base;
+                        $detail[] = $autograder->graderName;
+                        $detail[] = $feedback->feedback;
+
+                        // Time exported.
+                        $detail[] = time();
+                        $csvexport->add_data($detail);
+                    }
                 }
             }
-            // Time exported.
-            $exportdata[] = time();
-            $csvexport->add_data($exportdata);
         }
         $gui->close();
         $geub->close();
