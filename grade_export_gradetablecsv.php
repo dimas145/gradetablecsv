@@ -103,13 +103,13 @@ class grade_export_gradetablecsv extends grade_export {
                 $exportdata[] = $issuspended;
             }
 
-            foreach ($userdata->grades as $grade) {
+            foreach ($userdata->grades as $itemid => $grade) {
                 if ($export_tracking) {
                     $status = $geub->track($grade);
                 }
 
-                $exportdata[] = $grade->grade_item->itemname;   // assignment name
-                $exportdata[] = $grade->finalgrade;             // assignment grade
+                $exportdata[] = $grade->grade_item->itemname;                               // assignment name
+                $exportdata[] = $this->format_grade($grade, $this->displaytype[$itemid]);   // assignment grade
 
                 $userid = $user->id;
                 $courseid = $this->course->id;
@@ -127,17 +127,22 @@ class grade_export_gradetablecsv extends grade_export {
                 $curl->setHeader(array('Accept: application/json', 'Expect:'));
                 $response = json_decode($curl->get($url));
 
-                $base = $exportdata;    // copy redundant info
-                foreach ($response->submission as $autograder) {
-                    foreach ($autograder->feedbacks as $feedback) {
-                        $detail = $base;
-                        $detail[] = $autograder->graderName;
-                        $detail[] = $feedback->feedback;
+                if ($response->success) {
+                    foreach ($response->result as $autograder) {
+                        foreach ($autograder->feedbacks as $feedback) {
+                            $base = $exportdata;    // copy redundant info
+                            $base[] = $autograder->graderName;
+                            $base[] = $feedback->feedback;
 
-                        // Time exported.
-                        $detail[] = time();
-                        $csvexport->add_data($detail);
+                            // Time exported.
+                            $base[] = time();
+                            $csvexport->add_data($base);
+                        }
                     }
+                } else {
+                    $base[] = '-';  // empty grader
+                    $base[] = '-';  // empty feedback
+                    $csvexport->add_data($base);
                 }
             }
         }
