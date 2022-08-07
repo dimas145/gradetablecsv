@@ -104,13 +104,14 @@ class grade_export_gradetablecsv extends grade_export {
             }
 
             $index = 0;
+            $keys = array_keys($this->displaytype);
             foreach ($userdata->grades as $grade) {
                 if ($export_tracking) {
                     $status = $geub->track($grade);
                 }
 
-                $exportdata[] = $grade->grade_item->itemname;                               // assignment name
-                $exportdata[] = $this->format_grade($grade, $this->displaytype[$index]);   // assignment grade
+                $exportdata[] = $grade->grade_item->itemname;                                   // assignment name
+                $exportdata[] = $this->format_grade($grade, $this->displaytype[$keys[$index]]); // assignment grade
 
                 $userid = $user->id;
                 $courseid = $this->course->id;
