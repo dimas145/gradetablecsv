@@ -111,7 +111,7 @@ class grade_export_gradetablecsv extends grade_export {
                     $status = $geub->track($grade);
                 }
 
-                if ($grade->grade_item->itemname == 'course') {                             // assignment name
+                if ($grade->grade_item->itemtype == 'course') {                             // assignment name
                     $exportdata[] = 'Course Total';
                 } else {
                     $exportdata[] = $grade->grade_item->itemname;
