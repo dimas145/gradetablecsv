@@ -104,13 +104,14 @@ class grade_export_gradetablecsv extends grade_export {
                 $exportdata[] = $issuspended;
             }
 
+            $base = $exportdata;    // copy redundant info
             $keys = array_keys($this->displaytype);
             foreach ($userdata->grades as $grade) {
                 if ($export_tracking) {
                     $status = $geub->track($grade);
                 }
 
-                $exportdata[] = $grade->grade_item->itemname;                                   // assignment name
+                $exportdata[] = $grade->grade_item->itemname;                              // assignment name
                 $exportdata[] = $this->format_grade($grade, $this->displaytype[$keys[0]]); // assignment grade
 
                 $userid = $user->id;
@@ -129,11 +130,10 @@ class grade_export_gradetablecsv extends grade_export {
                 $curl->setHeader(array('Accept: application/json', 'Expect:'));
                 $response = json_decode($curl->get($url));
 
-                $base = $exportdata;    // copy redundant info
                 if ($response->success) {
                     foreach ($response->result as $autograder) {
                         foreach ($autograder->feedbacks as $feedback) {
-                            $detail = $base;
+                            $detail = $exportdata;
                             $detail[] = $autograder->graderName;
                             $detail[] = $autograder->grade;
                             $detail[] = $feedback->feedback;
@@ -144,14 +144,15 @@ class grade_export_gradetablecsv extends grade_export {
                         }
                     }
                 } else {
-                    $base[] = '-';  // empty autograder
-                    $base[] = '-';  // empty grade
-                    $base[] = '-';  // empty feedback
+                    $exportdata[] = '-';  // empty autograder
+                    $exportdata[] = '-';  // empty grade
+                    $exportdata[] = '-';  // empty feedback
 
                     // Time exported.
-                    $base[] = time();
-                    $csvexport->add_data($base);
+                    $exportdata[] = time();
+                    $csvexport->add_data($exportdata);
                 }
+                $exportdata = $base;
             }
         }
         $gui->close();
