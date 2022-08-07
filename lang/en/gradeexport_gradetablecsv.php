@@ -31,4 +31,5 @@ $string['gradetablecsv:view'] = 'Use autograding feedback grade table export';
 $string['assignment'] = 'Assignment name';
 $string['total'] = 'Total assignment grade';
 $string['autograder'] = 'Autograder name';
+$string['grade'] = 'Grade by autograder';
 $string['feedback'] = 'Feedbacks';

@@ -78,6 +78,7 @@ class grade_export_gradetablecsv extends grade_export {
         $exporttitle[] = get_string('assignment', 'gradeexport_gradetablecsv');
         $exporttitle[] = get_string('total', 'gradeexport_gradetablecsv');
         $exporttitle[] = get_string('autograder', 'gradeexport_gradetablecsv');
+        $exporttitle[] = get_string('grade', 'gradeexport_gradetablecsv');
         $exporttitle[] = get_string('feedback', 'gradeexport_gradetablecsv');
 
         // Last downloaded column header.
@@ -135,6 +136,7 @@ class grade_export_gradetablecsv extends grade_export {
                         foreach ($autograder->feedbacks as $feedback) {
                             $detail = $base;
                             $detail[] = $autograder->graderName;
+                            $detail[] = $autograder->grade;
                             $detail[] = $feedback->feedback;
 
                             // Time exported.
@@ -143,7 +145,8 @@ class grade_export_gradetablecsv extends grade_export {
                         }
                     }
                 } else {
-                    $base[] = '-';  // empty grader
+                    $base[] = '-';  // empty autograder
+                    $base[] = '-';  // empty grade
                     $base[] = '-';  // empty feedback
 
                     // Time exported.
